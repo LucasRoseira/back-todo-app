@@ -37,7 +37,19 @@ use Illuminate\Foundation\Http\FormRequest;
  *         type="string",
  *         format="date",
  *         example="2024-08-10"
- *     )
+ *     ),
+ *      @OA\Property(
+ *         property="filter_type",
+ *         type="string",
+ *         enum={"today", "pending", "overdue"},
+ *         example="pending"
+ *     ),
+ *     @OA\Property(
+ *         property="responsible_name",
+ *         type="string",
+ *         example="João Silva",
+ *         description="Nome do responsável pela tarefa"
+ *     ),
  * )
  */
 
@@ -62,6 +74,9 @@ class TaskRequest extends FormRequest
             'priority' => 'sometimes|in:low,medium,high',
             'due_date' => 'sometimes|date|after_or_equal:today',
             'category_id' => 'sometimes|nullable|exists:categories,id',
+            'filter_type' => 'sometimes|in:today,pending,overdue',
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'responsible_name' => 'sometimes|string|max:255',
         ];
     }
 }

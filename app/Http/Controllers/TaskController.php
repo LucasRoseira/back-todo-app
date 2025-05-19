@@ -32,12 +32,62 @@ class TaskController extends Controller
      *         description="Number of items per page",
      *         @OA\Schema(type="integer")
      *     ),
+     *     @OA\Parameter(
+     *         name="filter_type",
+     *         in="query",
+     *         required=false,
+     *         description="Filter type (today, pending, overdue)",
+     *         @OA\Schema(type="string", enum={"today", "pending", "overdue"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="title",
+     *         in="query",
+     *         required=false,
+     *         description="Filter by title (partial match)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="description",
+     *         in="query",
+     *         required=false,
+     *         description="Filter by description (partial match)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         required=false,
+     *         description="Filter by status",
+     *         @OA\Schema(type="string", enum={"pending", "in_progress", "completed"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="priority",
+     *         in="query",
+     *         required=false,
+     *         description="Filter by priority",
+     *         @OA\Schema(type="string", enum={"low", "medium", "high"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="due_date",
+     *         in="query",
+     *         required=false,
+     *         description="Filter tasks due after or on this date",
+     *         @OA\Schema(type="string", format="date", example="2024-08-10")
+     *     ),
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         required=false,
+     *         description="Filter by category ID",
+     *         @OA\Schema(type="integer")
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="List of tasks"
      *     )
      * )
      */
+
     public function index(TaskRequest $request): JsonResponse
     {
         $filters = $request->validated();
@@ -128,16 +178,26 @@ class TaskController extends Controller
      *     )
      * )
      */
-    public function update(TaskUpdateRequest $request, Task $task)
+    public function update(TaskUpdateRequest $request, Task $task, MailService $mailService)
     {
         $validated = $request->validated();
+
+        $statusChanged = isset($validated['status']) && $validated['status'] !== $task->status;
+        $responsibleChanged = isset($validated['responsible']) && $validated['responsible'] !== $task->responsible;
 
         if (isset($validated['status']) && $validated['status'] === 'completed') {
             $validated['completed_at'] = now();
         }
 
-        return $this->taskService->updateTask($task, $validated);
+        $updatedTask = $this->taskService->updateTask($task, $validated);
+
+        if ($statusChanged || $responsibleChanged) {
+            $mailService->sendTaskUpdatedNotification($updatedTask);
+        }
+
+        return response()->json($updatedTask);
     }
+
 
     /**
      * @OA\Delete(

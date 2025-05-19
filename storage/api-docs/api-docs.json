@@ -11,18 +11,55 @@
                 "tags": [
                     "Categories"
                 ],
-                "summary": "Get list of all categories",
+                "summary": "Get paginated list of categories",
                 "operationId": "3f5817a34833d0a1f4af4548dd3aeaba",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Category"
-                                    }
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Category"
+                                            }
+                                        },
+                                        "last_page": {
+                                            "type": "integer"
+                                        },
+                                        "per_page": {
+                                            "type": "integer"
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -181,6 +218,86 @@
                         "name": "per_page",
                         "in": "query",
                         "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "filter_type",
+                        "in": "query",
+                        "description": "Filter type (today, pending, overdue)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "today",
+                                "pending",
+                                "overdue"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description": "Filter by title (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "Filter by description (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "in_progress",
+                                "completed"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "priority",
+                        "in": "query",
+                        "description": "Filter by priority",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "low",
+                                "medium",
+                                "high"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "due_date",
+                        "in": "query",
+                        "description": "Filter tasks due after or on this date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-08-10"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Filter by category ID",
                         "required": false,
                         "schema": {
                             "type": "integer"
@@ -361,6 +478,20 @@
                         "type": "string",
                         "format": "date",
                         "example": "2024-08-10"
+                    },
+                    "filter_type": {
+                        "type": "string",
+                        "enum": [
+                            "today",
+                            "pending",
+                            "overdue"
+                        ],
+                        "example": "pending"
+                    },
+                    "responsible_name": {
+                        "description": "Nome do responsável pela tarefa",
+                        "type": "string",
+                        "example": "João Silva"
                     }
                 },
                 "type": "object"
@@ -500,6 +631,11 @@
                         "type": "string",
                         "example": "Work",
                         "nullable": true
+                    },
+                    "responsible_name": {
+                        "description": "Responsible name for the task",
+                        "type": "string",
+                        "example": "João Silva"
                     }
                 },
                 "type": "object"

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryRequest;
-use App\Interfaces\CategoryServiceInterface;
+use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 use App\Models\Category;
 
@@ -16,30 +16,53 @@ use App\Models\Category;
  */
 class CategoryController extends Controller
 {
-    public function __construct(private readonly CategoryServiceInterface $categoryService) {}
+    public function __construct(private readonly CategoryService $categoryService) {}
 
-        /**
+    /**
      * @OA\Get(
      *     path="/api/categories",
-     *     summary="Get list of all categories",
+     *     summary="Get paginated list of categories",
      *     tags={"Categories"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Filter by name",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/Category")
+     *             @OA\Property(property="current_page", type="integer"),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Category")),
+     *             @OA\Property(property="last_page", type="integer"),
+     *             @OA\Property(property="per_page", type="integer"),
+     *             @OA\Property(property="total", type="integer")
      *         )
      *     )
      * )
      */
-    public function index(): JsonResponse
+    public function index(CategoryRequest $request): JsonResponse
     {
-        $categories = $this->categoryService->getAllCategories();
-        return response()->json($categories);
+        $filters = $request->validated();
+        $perPage = $filters['per_page'] ?? 10;
+        unset($filters['per_page']);
+
+        $paginated = $this->categoryService->getAllCategories($perPage, $filters);
+
+        return response()->json($paginated);
     }
 
-        /**
+
+    /**
      * @OA\Post(
      *     path="/api/categories",
      *     summary="Create a new category",
@@ -65,7 +88,7 @@ class CategoryController extends Controller
         return response()->json($category, 201);
     }
 
-        /**
+    /**
      * @OA\Get(
      *     path="/api/categories/{category}",
      *     summary="Get specific category",
@@ -94,7 +117,7 @@ class CategoryController extends Controller
         return response()->json($category);
     }
 
-      /**
+    /**
      * @OA\Put(
      *     path="/api/categories/{category}",
      *     summary="Update a category",
@@ -131,7 +154,7 @@ class CategoryController extends Controller
         return response()->json($updatedCategory);
     }
 
-        /**
+    /**
      * @OA\Delete(
      *     path="/api/categories/{category}",
      *     summary="Delete a category",

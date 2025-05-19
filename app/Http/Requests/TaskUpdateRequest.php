@@ -42,7 +42,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *         type="integer",
  *         example=2
  *     ),
-
  * 
  * )
  */
@@ -64,6 +63,7 @@ class TaskUpdateRequest extends FormRequest
             'due_date' => 'sometimes|date|nullable',
             'completed_at' => 'sometimes|date|nullable',
             'category_id' => 'sometimes|nullable|exists:categories,id',
+            'responsible_name' => 'sometimes|string|max:255',
         ];
     }
 }

@@ -35,6 +35,27 @@ class TaskRepository implements TaskRepositoryInterface
             $query->whereDate('due_date', '>=', $filters['due_date']);
         }
 
+        if (isset($filters['responsible_name'])) {
+            $query->where('responsible_name', 'like', '%' . $filters['responsible_name'] . '%');
+        }
+
+        if (isset($filters['filter_type'])) {
+            switch ($filters['filter_type']) {
+                case 'today':
+                    $query->whereDate('due_date', today());
+                    break;
+
+                case 'pending':
+                    $query->where('status', 'pending');
+                    break;
+
+                case 'overdue':
+                    $query->where('due_date', '<', now())
+                        ->where('status', '!=', 'completed');
+                    break;
+            }
+        }
+
         return $query->orderBy('priority')->paginate($perPage);
     }
 

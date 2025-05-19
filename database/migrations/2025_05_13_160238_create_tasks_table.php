@@ -24,13 +24,14 @@ return new class extends Migration {
             $table->date('due_date')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->string('responsible_name')->nullable();
             $table->timestamps();
         });
 
         DB::table('categories')->insert([
-            ['name' => 'Trabalho', 'color' => '#3b82f6', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Pessoal', 'color' => '#10b981', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Estudo', 'color' => '#f59e0b', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Work', 'color' => '#3b82f6', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Personal', 'color' => '#10b981', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Study', 'color' => '#f59e0b', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         $workCategoryId = DB::table('categories')->where('name', 'Work')->value('id');
@@ -43,9 +44,10 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(3),
-                'category_id' => $workCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
             ],
             [
                 'title' => 'Task 2',
@@ -53,9 +55,11 @@ return new class extends Migration {
                 'status' => 'in_progress',
                 'priority' => 'medium',
                 'due_date' => now()->addDays(5),
-                'category_id' => $personalCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Finish project proposal',
@@ -63,9 +67,11 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(7),
-                'category_id' => $workCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Grocery shopping',
@@ -73,9 +79,11 @@ return new class extends Migration {
                 'status' => 'completed',
                 'priority' => 'low',
                 'due_date' => now()->subDays(1),
-                'category_id' => $personalCategoryId,
+                'category_id' => 3,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Team meeting',
@@ -83,9 +91,11 @@ return new class extends Migration {
                 'status' => 'in_progress',
                 'priority' => 'medium',
                 'due_date' => now()->addDays(2),
-                'category_id' => $workCategoryId,
+                'category_id' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Doctor appointment',
@@ -93,9 +103,11 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(4),
-                'category_id' => $personalCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Submit tax documents',
@@ -103,9 +115,11 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(10),
-                'category_id' => $workCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Task 1',
@@ -116,6 +130,8 @@ return new class extends Migration {
                 'category_id' => $workCategoryId,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Task 2',
@@ -123,9 +139,11 @@ return new class extends Migration {
                 'status' => 'in_progress',
                 'priority' => 'medium',
                 'due_date' => now()->addDays(5),
-                'category_id' => $personalCategoryId,
+                'category_id' => 3,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Finish project proposal',
@@ -133,9 +151,11 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(7),
-                'category_id' => $workCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Grocery shopping',
@@ -143,9 +163,10 @@ return new class extends Migration {
                 'status' => 'completed',
                 'priority' => 'low',
                 'due_date' => now()->subDays(1),
-                'category_id' => $personalCategoryId,
+                'category_id' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
             ],
             [
                 'title' => 'Team meeting',
@@ -153,9 +174,11 @@ return new class extends Migration {
                 'status' => 'in_progress',
                 'priority' => 'medium',
                 'due_date' => now()->addDays(2),
-                'category_id' => $workCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Doctor appointment',
@@ -163,9 +186,11 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(4),
-                'category_id' => $personalCategoryId,
+                'category_id' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ],
             [
                 'title' => 'Submit tax documents',
@@ -173,11 +198,14 @@ return new class extends Migration {
                 'status' => 'pending',
                 'priority' => 'high',
                 'due_date' => now()->addDays(10),
-                'category_id' => $workCategoryId,
+                'category_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'responsible_name' => 'Noah'
+
             ]
         ]);
+
 
         Schema::create('task_status_histories', function (Blueprint $table) {
             $table->id();
@@ -189,6 +217,51 @@ return new class extends Migration {
             $table->index('task_id');
             $table->index('changed_at');
         });
+
+        DB::table('task_status_histories')->insert([
+            [
+                'task_id' => 1,
+                'status' => 'pending',
+                'changed_at' => now()->subDays(3),
+                'created_at' => now()->subDays(3),
+                'updated_at' => now()->subDays(3),
+            ],
+            [
+                'task_id' => 1,
+                'status' => 'in_progress',
+                'changed_at' => now()->subDays(2),
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDays(2),
+            ],
+            [
+                'task_id' => 1,
+                'status' => 'completed',
+                'changed_at' => now()->subDay(),
+                'created_at' => now()->subDay(),
+                'updated_at' => now()->subDay(),
+            ],
+            [
+                'task_id' => 2,
+                'status' => 'pending',
+                'changed_at' => now()->subDays(5),
+                'created_at' => now()->subDays(5),
+                'updated_at' => now()->subDays(5),
+            ],
+            [
+                'task_id' => 2,
+                'status' => 'in_progress',
+                'changed_at' => now()->subDays(4),
+                'created_at' => now()->subDays(4),
+                'updated_at' => now()->subDays(4),
+            ],
+            [
+                'task_id' => 3,
+                'status' => 'pending',
+                'changed_at' => now()->subDays(1),
+                'created_at' => now()->subDays(1),
+                'updated_at' => now()->subDays(1),
+            ],
+        ]);
     }
 
     public function down()

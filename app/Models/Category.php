@@ -29,8 +29,4 @@ class Category extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function statusHistories(): HasMany
-    {
-        return $this->hasMany(TaskStatusHistory::class);
-    }
 }

@@ -78,7 +78,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *         type="string",
  *         nullable=true,
  *         example="Work"
- *     )
+ *     ),
+ *     @OA\Property(
+ *         property="responsible_name",
+ *         type="string",
+ *         example="João Silva",
+ *         description="Responsible name for the task"
+ *     ),
+
  * )
  */
 class Task extends Model
@@ -92,7 +99,8 @@ class Task extends Model
         'priority',
         'due_date',
         'completed_at',
-        'category_id'
+        'category_id',
+        'responsible_name'
     ];
 
     protected $casts = [
@@ -125,6 +133,7 @@ class Task extends Model
             'priority' => 'sometimes|in:low,medium,high',
             'due_date' => 'sometimes|date|after_or_equal:today',
             'category_id' => 'sometimes|nullable|exists:categories,id',
+            'responsible_name' => 'sometimes|string|max:255',
         ];
 
         if ($updating) $rules['completed_at'] = 'sometimes|nullable|date';

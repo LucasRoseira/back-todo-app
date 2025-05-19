@@ -2,23 +2,24 @@
 
 namespace App\Services;
 
-use App\Interfaces\CategoryRepositoryInterface;
-
 use App\Interfaces\CategoryServiceInterface;
+use App\Interfaces\CategoryRepositoryInterface;
 use App\Models\Category;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryService implements CategoryServiceInterface
 {
-    private CategoryRepositoryInterface $categoryRepository;
+    public function __construct(private CategoryRepositoryInterface $categoryRepository) {}
 
-    public function __construct(CategoryRepositoryInterface $categoryRepository)
+    public function getAllCategories($perPage = 10, array $filters = []): LengthAwarePaginator
     {
-        $this->categoryRepository = $categoryRepository;
-    }
+        $query = Category::query();
 
-    public function getAllCategories(): array
-    {
-        return $this->categoryRepository->getAllCategories();
+        if (isset($filters['name'])) {
+            $query->where('name', 'like', '%' . $filters['name'] . '%');
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function createCategory(array $data): Category
