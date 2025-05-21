@@ -213,7 +213,6 @@ return new class extends Migration {
             $table->enum('status', ['pending', 'in_progress', 'completed']);
             $table->timestamp('changed_at')->useCurrent();
             $table->timestamps();
-
             $table->index('task_id');
             $table->index('changed_at');
         });

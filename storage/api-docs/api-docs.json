@@ -489,7 +489,7 @@
                         "example": "pending"
                     },
                     "responsible_name": {
-                        "description": "Nome do responsável pela tarefa",
+                        "description": "Responsible name",
                         "type": "string",
                         "example": "João Silva"
                     }
@@ -626,11 +626,6 @@
                         "format": "date-time",
                         "readOnly": true,
                         "example": "2024-07-01T12:00:00Z"
-                    },
-                    "category_name": {
-                        "type": "string",
-                        "example": "Work",
-                        "nullable": true
                     },
                     "responsible_name": {
                         "description": "Responsible name for the task",

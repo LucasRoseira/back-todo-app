@@ -38,7 +38,6 @@
             <p><span class="label">Due Date:</span> {{ $task->due_date ?? 'No due date' }}</p>
             <p><span class="label">Description:</span><br> {{ $task->description ?? 'No description' }}</p>
         </div>
-
     </div>
 </body>
 

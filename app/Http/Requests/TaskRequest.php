@@ -48,7 +48,7 @@ use Illuminate\Foundation\Http\FormRequest;
  *         property="responsible_name",
  *         type="string",
  *         example="João Silva",
- *         description="Nome do responsável pela tarefa"
+ *         description="Responsible name for the task"
  *     ),
  * )
  */

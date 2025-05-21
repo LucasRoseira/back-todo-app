@@ -74,12 +74,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *         example="2024-07-01T12:00:00Z"
  *     ),
  *     @OA\Property(
- *         property="category_name",
- *         type="string",
- *         nullable=true,
- *         example="Work"
- *     ),
- *     @OA\Property(
  *         property="responsible_name",
  *         type="string",
  *         example="João Silva",
@@ -107,7 +101,6 @@ class Task extends Model
         'completed_at' => 'datetime',
     ];
 
-    protected $appends = ['category_name'];
 
     public function category(): BelongsTo
     {
@@ -133,7 +126,7 @@ class Task extends Model
             'priority' => 'sometimes|in:low,medium,high',
             'due_date' => 'sometimes|date|after_or_equal:today',
             'category_id' => 'sometimes|nullable|exists:categories,id',
-            'responsible_name' => 'sometimes|string|max:255',
+            'responsible_name' => 'sometimes|nullable|string',
         ];
 
         if ($updating) $rules['completed_at'] = 'sometimes|nullable|date';

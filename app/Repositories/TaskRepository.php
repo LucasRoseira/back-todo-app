@@ -13,7 +13,7 @@ class TaskRepository implements TaskRepositoryInterface
 
     public function getAllTasks(int $perPage = 10, array $filters = []): LengthAwarePaginator
     {
-        $query = Task::query();
+         $query = Task::with('category');
 
         if (isset($filters['title'])) {
             $query->where('title', 'like', '%' . $filters['title'] . '%');

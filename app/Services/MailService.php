@@ -19,7 +19,7 @@ class MailService
 
         Mail::send('emails.task_updated', ['task' => $task], function ($message) use ($recipient, $task) {
             $message->to($recipient)
-                ->subject("Atualização na Tarefa: {$task->title}");
+                ->subject("Update in the task: {$task->title}");
         });
     }
 }
