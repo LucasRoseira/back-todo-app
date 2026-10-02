@@ -12,10 +12,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *     type="object",
  *     title="Category",
  *     required={"id", "name"},
+ *
  *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="name", type="string", example="Technology"),
- *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T00:00:00Z"),
- *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T00:00:00Z")
+ *     @OA\Property(property="name", type="string", example="Work"),
+ *     @OA\Property(property="color", type="string", nullable=true, example="#3b82f6"),
+ *     @OA\Property(property="tasks_count", type="integer", example=4, description="Present when the category query counted tasks"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
  * )
  */
 class Category extends Model
@@ -28,5 +31,4 @@ class Category extends Model
     {
         return $this->hasMany(Task::class);
     }
-
 }

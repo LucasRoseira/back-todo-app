@@ -3,118 +3,80 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryRequest;
-use App\Services\CategoryService;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\IndexCategoryRequest;
+use App\Http\Resources\CategoryResource;
+use App\Interfaces\CategoryServiceInterface;
 use App\Models\Category;
-
+use App\Support\PaginatedResource;
+use Illuminate\Http\JsonResponse;
+use OpenApi\Annotations as OA;
 
 /**
  * @OA\Tag(
  *     name="Categories",
- *     description="Categories management operations"
+ *     description="Category management operations"
  * )
  */
 class CategoryController extends Controller
 {
-    public function __construct(private readonly CategoryService $categoryService) {}
+    public function __construct(private readonly CategoryServiceInterface $categoryService) {}
 
     /**
      * @OA\Get(
      *     path="/api/categories",
-     *     summary="Get paginated list of categories",
+     *     summary="Get a paginated list of categories",
      *     tags={"Categories"},
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="Items per page",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="name",
-     *         in="query",
-     *         description="Filter by name",
-     *         required=false,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="current_page", type="integer"),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Category")),
-     *             @OA\Property(property="last_page", type="integer"),
-     *             @OA\Property(property="per_page", type="integer"),
-     *             @OA\Property(property="total", type="integer")
-     *         )
-     *     )
+     *
+     *     @OA\Parameter(name="per_page", in="query", required=false, description="Items per page (1-100)", @OA\Schema(type="integer", example=10)),
+     *     @OA\Parameter(name="name", in="query", required=false, description="Partial name match", @OA\Schema(type="string")),
+     *
+     *     @OA\Response(response=200, description="Paginated categories", @OA\JsonContent(ref="#/components/schemas/CategoryPage")),
+     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
      * )
      */
-    public function index(CategoryRequest $request): JsonResponse
+    public function index(IndexCategoryRequest $request): JsonResponse
     {
         $filters = $request->validated();
-        $perPage = $filters['per_page'] ?? 10;
+        $perPage = (int) ($filters['per_page'] ?? 10);
         unset($filters['per_page']);
 
         $paginated = $this->categoryService->getAllCategories($perPage, $filters);
 
-        return response()->json($paginated);
+        return response()->json(PaginatedResource::make($paginated, CategoryResource::class));
     }
-
 
     /**
      * @OA\Post(
      *     path="/api/categories",
-     *     summary="Create a new category",
+     *     summary="Create a category",
      *     tags={"Categories"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/CategoryRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Category created successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/Category")
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/CategoryRequest")),
+     *
+     *     @OA\Response(response=201, description="Category created", @OA\JsonContent(ref="#/components/schemas/Category")),
+     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
      * )
      */
-    public function store(CategoryRequest $request): JsonResponse
+    public function store(CategoryRequest $request): CategoryResource
     {
-        $category = $this->categoryService->createCategory($request->validated());
-        return response()->json($category, 201);
+        return new CategoryResource($this->categoryService->createCategory($request->validated()));
     }
 
     /**
      * @OA\Get(
      *     path="/api/categories/{category}",
-     *     summary="Get specific category",
+     *     summary="Get a category",
      *     tags={"Categories"},
-     *     @OA\Parameter(
-     *         name="category",
-     *         in="path",
-     *         required=true,
-     *         description="Category ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/Category")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Category not found"
-     *     )
+     *
+     *     @OA\Parameter(name="category", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=200, description="Category", @OA\JsonContent(ref="#/components/schemas/Category")),
+     *     @OA\Response(response=404, description="Category not found", @OA\JsonContent(ref="#/components/schemas/ErrorMessage"))
      * )
      */
-
-    public function show(Category $category): JsonResponse
+    public function show(Category $category): CategoryResource
     {
-        return response()->json($category);
+        return new CategoryResource($this->categoryService->getCategory($category));
     }
 
     /**
@@ -122,63 +84,40 @@ class CategoryController extends Controller
      *     path="/api/categories/{category}",
      *     summary="Update a category",
      *     tags={"Categories"},
-     *     @OA\Parameter(
-     *         name="category",
-     *         in="path",
-     *         required=true,
-     *         description="Category ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/CategoryRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Category updated successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/Category")
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Category not found"
-     *     )
+     *
+     *     @OA\Parameter(name="category", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/CategoryRequest")),
+     *
+     *     @OA\Response(response=200, description="Category updated", @OA\JsonContent(ref="#/components/schemas/Category")),
+     *     @OA\Response(response=404, description="Category not found", @OA\JsonContent(ref="#/components/schemas/ErrorMessage")),
+     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
      * )
      */
-    public function update(CategoryRequest $request, Category $category): JsonResponse
+    public function update(CategoryRequest $request, Category $category): CategoryResource
     {
-        $updatedCategory = $this->categoryService->updateCategory($category, $request->validated());
-        return response()->json($updatedCategory);
+        return new CategoryResource(
+            $this->categoryService->updateCategory($category, $request->validated())
+        );
     }
 
     /**
      * @OA\Delete(
      *     path="/api/categories/{category}",
      *     summary="Delete a category",
+     *     description="Tasks in the category are kept and their category_id is set to null.",
      *     tags={"Categories"},
-     *     @OA\Parameter(
-     *         name="category",
-     *         in="path",
-     *         required=true,
-     *         description="Category ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=204,
-     *         description="Category deleted successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Category not found"
-     *     )
+     *
+     *     @OA\Parameter(name="category", in="path", required=true, @OA\Schema(type="integer")),
+     *
+     *     @OA\Response(response=204, description="Category deleted"),
+     *     @OA\Response(response=404, description="Category not found", @OA\JsonContent(ref="#/components/schemas/ErrorMessage"))
      * )
      */
     public function destroy(Category $category): JsonResponse
     {
         $this->categoryService->deleteCategory($category);
+
         return response()->json(null, 204);
     }
 }

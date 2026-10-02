@@ -19,9 +19,16 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // Credentialed browser calls cannot use "*". Local Nuxt (port 3000) and Vite are covered below.
+    'allowed_origins' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000'))
+    ))),
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '#^https?://localhost(:\d+)?$#',
+        '#^https?://127\.0\.0\.1(:\d+)?$#',
+    ],
 
     'allowed_headers' => ['*'],
 
@@ -29,6 +36,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

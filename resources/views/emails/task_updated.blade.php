@@ -34,7 +34,7 @@
         <div class="content">
             <p><span class="label">Title:</span> {{ $task->title }}</p>
             <p><span class="label">Status:</span> {{ ucfirst($task->status) }}</p>
-            <p><span class="label">Responsible:</span> {{ $task->responsible ?? 'Not specified' }}</p>
+            <p><span class="label">Responsible:</span> {{ $task->responsible_name ?? 'Not specified' }}</p>
             <p><span class="label">Due Date:</span> {{ $task->due_date ?? 'No due date' }}</p>
             <p><span class="label">Description:</span><br> {{ $task->description ?? 'No description' }}</p>
         </div>

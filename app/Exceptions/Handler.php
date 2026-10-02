@@ -2,17 +2,21 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Validation\ValidationException;
-use Throwable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
     /**
-     * The list of the inputs that are never flashed to the session on validation exceptions.
-     *
      * @var array<int, string>
      */
     protected $dontFlash = [
@@ -28,21 +32,70 @@ class Handler extends ExceptionHandler
         });
     }
 
-    protected function invalidJson($request, ValidationException $exception): JsonResponse
+    public function render($request, Throwable $e): Response
     {
-        return response()->json([
-            'message' => 'Erro de validação.',
-            'errors' => $exception->errors(),
-        ], 422);
+        if ($this->wantsJson($request)) {
+            return $this->renderJson($this->prepareException($this->normalize($e)));
+        }
+
+        return parent::render($request, $e);
     }
 
-    public function render($request, Throwable $exception): Response
+    private function wantsJson(Request $request): bool
     {
-        return response()->json([
-            'message' => $exception instanceof ValidationException ? 'Erro de validação.' : 'Erro interno no servidor.',
-            'errors' => $exception instanceof ValidationException
-                ? $exception->errors()
-                : (config('app.debug') ? $exception->getMessage() : null),
-        ], $exception instanceof ValidationException ? 422 : 500);
+        return $request->is('api/*') || $request->expectsJson();
+    }
+
+    private function normalize(Throwable $e): Throwable
+    {
+        if ($e instanceof ModelNotFoundException) {
+            return new NotFoundHttpException('Resource not found.', $e);
+        }
+
+        return $e;
+    }
+
+    private function renderJson(Throwable $e): JsonResponse
+    {
+        if ($e instanceof ValidationException) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        if ($e instanceof AuthenticationException) {
+            return response()->json([
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        if ($e instanceof UniqueConstraintViolationException) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'name' => ['A record with these values already exists.'],
+                ],
+            ], 422);
+        }
+
+        $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+
+        $message = match ($status) {
+            403 => 'This action is unauthorized.',
+            404 => 'Resource not found.',
+            405 => 'Method not allowed.',
+            419 => 'Page expired.',
+            default => $status >= 500 ? 'Server error.' : ($e->getMessage() ?: 'Request could not be completed.'),
+        };
+
+        $payload = ['message' => $message];
+
+        if (config('app.debug') && $status >= 500) {
+            $payload['exception'] = $e::class;
+            $payload['debug'] = $e->getMessage();
+        }
+
+        return response()->json($payload, $status);
     }
 }
