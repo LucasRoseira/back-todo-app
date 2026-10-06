@@ -21,8 +21,8 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-         \App\Http\Middleware\LogRequestMiddleware::class
-        
+        \App\Http\Middleware\LogRequestMiddleware::class,
+
     ];
 
     /**
@@ -41,7 +41,10 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            // Left off on purpose. Enabling Sanctum's SPA middleware makes
+            // localhost:3000 a stateful origin and rejects POST/PUT/DELETE
+            // that do not carry an X-XSRF-TOKEN. The Nuxt client calls this
+            // API with JSON and no cookie session. Use bearer tokens for /api/user.
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
